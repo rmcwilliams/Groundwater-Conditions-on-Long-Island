@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "https://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+        <title>Groundwater Conditions on Long Island, New York in 2013</title>
+        <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/3.9/js/dojo/dijit/themes/claro/claro.css"/>
+        <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/3.9/js/dojo/dojox/layout/resources/FloatingPane.css"/>
+        <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/3.9/js/dojo/dojox/layout/resources/ResizeHandle.css"/>
+        <link rel="stylesheet" href="https://js.arcgis.com/3.9/js/esri/css/esri.css">
+        <style>
+            html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                padding:0;
+            }
+            .esriScalebar {
+                padding: 20px 20px;
+            }
+            .dojoxFloatingPaneContent {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size:8pt;
+                font-weight:bold;
+            }
+            .dojoxFloatingPaneTitle {
+			    -moz-border-radius:4px;
+                -webkit-border-radius: 4px;
+                border-radius: 4px;
+                color: #CCCCCC;
+                background-color: #777777;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size:12pt;
+                font-weight:bold;
+            }
+            #dFloatingPane {
+                -moz-border-radius:4px;
+                -webkit-border-radius: 4x;
+                border-radius: 4px;
+                bottom: 75px;
+                right: 30px;
+                float: right;
+            }
+            #basemap_switcher {
+                -moz-border-radius:4px;
+                -webkit-border-radius: 4px;
+                border-radius: 4px;
+            }
+			#theme_switcher {
+                -moz-border-radius:4px;
+                -webkit-border-radius: 4px;
+                border-radius: 4px;
+            }
+            textarea {
+                width: 100%;
+                padding: 3px;
+                border: 1px solid #999;
+            }
+            #address {
+                -webkit-box-sizing: border-box;
+                /* Safari/Chrome, other WebKit */
+                -moz-box-sizing: border-box;
+                /* Firefox, other Gecko */
+                box-sizing: border-box;
+                /* IE 8+ */
+            }
+			.esriLegendServiceLabel{
+				display:none;
+			}
+			.esriLegendGroupLayer{
+				display:none;
+			}
+			.esriLegendLayerLabel{
+				font-family: arial;
+				font-size: 11px;
+				color: #888;
+				padding: 0px;
+			}
+			.esriLegendLayer{
+				font-family: arial;
+				font-size: 11px;
+				color: #888;
+			}
+
+        </style>
+		<script>var dojoConfig = { parseOnLoad: true };</script>
+        <script src="https://js.arcgis.com/3.9/"></script>
+        <script type="text/javascript">
+			dojo.require("esri.map");
+            dojo.require("esri.dijit.Legend");			
+			dojo.require("esri.dijit.Geocoder");			
+            dojo.require("esri.dijit.BasemapGallery");			
+            dojo.require("dijit.TitlePane");
+            dojo.require("dijit.layout.BorderContainer");
+            dojo.require("dijit.layout.ContentPane");
+            dojo.require("dojox.layout.FloatingPane");
+        </script>
+        <script type="text/javascript">
+            var ligc, legend, map, visible = [];
+			
+            function init() {
+              map = new esri.Map("map", {
+                basemap: "gray",
+				center: [-72.90,40.80],
+				zoom: 9,
+				opacity: 0.7,
+				logo:false
+              });
+			  
+			    var geocoder = new esri.dijit.Geocoder({
+				  map: map,
+				  autocomplete: true,
+				  esriGeocoder: {
+					name: "Esri World Geocoder",
+					suffix: "Redlands, CA"
+				  }
+				},"search");
+				geocoder.startup();
+                          
+                createBasemapGallery();
+
+				ligc = new esri.layers.ArcGISDynamicMapServiceLayer("https://www.sciencebase.gov/arcgis/rest/services/Catalog/571fb8b2e4b071321fe56d64/MapServer");
+				ligc.setVisibleLayers([0,1,2,3]);
+	
+				map.addLayers([ligc]);
+
+				  dojo.connect(map, 'onLayersAddResult', function(results) {
+					legend = new esri.dijit.Legend({
+						map:map,
+						respectCurrentMapScale:true,
+						layerInfos: [{layer: ligc,title: "Layers"}]
+					      },"legendDiv");
+					legend.startup();			
+				  });
+              
+			//end function init
+            }
+			
+			function updateLayerVisibility(name) {
+				visible = [];
+				//var inputs = dojo.query(".list_item"), input;
+				console.log(name.value);
+				switch (name.value) {
+				case "Surface of the water-table aquifer":
+					ligc.setVisibleLayers([0,1,2,3]);
+					legend.refresh();
+					break;
+				case "Potentiometric surface of the Magothy & Jameco aquifers":
+					ligc.setVisibleLayers([4,5,6,7,8]);
+					legend.refresh();
+					break;
+				case "Potentiometric surface of the Lloyd & North Shore aquifers":
+					ligc.setVisibleLayers([9,10,11,12,13]);
+					legend.refresh();
+					break;
+				}
+			}
+
+			
+			function createBasemapGallery() {
+                //add the basemap gallery, in this case we'll display maps from ArcGIS.com including bing maps
+                var basemapGallery = new esri.dijit.BasemapGallery({
+                    showArcGISBasemaps: true,
+                    bingMapsKey: '/*Please enter your own Bing Map key*/',
+                    map: map
+                }, "basemapGallery");
+
+                basemapGallery.startup();
+				
+				dojo.connect(basemapGallery,'onSelectionChange', function(){
+				  //close the title pane 
+				  var bp = dijit.byId('basemap_switcher');
+				  bp.toggle();
+				});
+
+                dojo.connect(basemapGallery, "onError", function (msg) {
+                    console.log(msg)
+                });
+            }
+            
+            dojo.addOnLoad(init);
+        </script>
+    </head>
+    
+    <body class="claro">
+        <div dojotype="dijit.layout.BorderContainer" design="headline" gutters="false" style="width:100%;height:100%;margin:0;">
+			
+            <div id="map" dojotype="dijit.layout.ContentPane" region="center" style="border:1px solid #000;padding:0;">
+			
+				 <div style="position:absolute; left:65px; top:20px; z-Index:999;font-size:10pt;font-family: Arial, Helvetica, sans-serif;">
+					<div id="search"></div>
+				 </div>
+			
+                <div style="position:absolute; right:15px; top:10px; z-Index:999;font-size:10pt;font-family: Arial, Helvetica, sans-serif;">
+                    <div dojoType="dijit.TitlePane" title="Switch Basemap" id="basemap_switcher"
+                    closable="false" open="false">
+                        <div dojoType="dijit.layout.ContentPane" style="width:380px; height:215px; overflow:auto;">
+                            <div id="basemapGallery"></div>
+                        </div>
+                    </div>
+                </div>
+				
+                <div data-dojo-type="dojox.layout.FloatingPane" id="dFloatingPane" title="A floating pane" data-dojo-props="resizable:true, dockable:false, closable:false, title:'Explanation'" style="width:265px;height:400px;z-index:99;">
+						<div id="legendPane2" dojoType="dijit.layout.ContentPane" title="Legend2" style="padding-bottom:0;">
+							<select size="1" name="test1" id="theme_switch" style="width:275px;font-size:10px;" onchange="updateLayerVisibility(this)">
+								<option selected>Surface of the water-table aquifer</option>
+								<option>Potentiometric surface of the Magothy & Jameco aquifers</option>
+								<option>Potentiometric surface of the Lloyd & North Shore aquifers</option>
+							</select>
+						</div>
+				
+						<div id="legendPane" dojoType="dijit.layout.ContentPane" title="Legend" style="padding-top:0;">
+							<div id="legendDiv"></div>
+						</div>
+
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>
