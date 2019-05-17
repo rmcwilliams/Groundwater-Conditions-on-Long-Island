@@ -1,5 +1,6 @@
-# Long-Island-Depth-to-Water-Viewer
-Combined all older versions into one application that allows you to switch between years, also a better design.
+# Groundwater-Conditions-on-Long-Island
+
+Combining the mappers with data from previous years into one general mapper that allows users to switch between years, including the most recent 2016 data.
 
 https://rmcwilliams.github.io/Long-Island-Depth-to-Water-Viewer/
 
